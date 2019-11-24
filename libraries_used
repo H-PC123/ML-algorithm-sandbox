@@ -1,0 +1,5 @@
+mnist-parser
+	0.02
+	Alexander Meinhold
+	a simple python package to download and parse the MNIST dataset
+
