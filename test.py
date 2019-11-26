@@ -1,7 +1,8 @@
 import mnist
 import Slp
+#import os
 
-mnist.datasets_url = "./MNIST/"
+mnist.temporary_dir = lambda: './MNIST/'
 
 train_images = mnist.train_images().reshape(len(mnist.train_images()), 784)
 train_labels = mnist.train_labels()
@@ -22,5 +23,5 @@ print(train_labels[0])
 print("===== Gradient Descent Iteration Test =====\n")
 
 mySlp.test(test_images[:100], test_labels[:100])
-mySlp.train(train_images, train_labels, iterations=1000000000)
+mySlp.train(train_images, train_labels, iterations=100000)
 mySlp.test(test_images[:100], test_labels[:100])
