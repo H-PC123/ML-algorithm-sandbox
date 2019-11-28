@@ -23,5 +23,5 @@ print(train_labels[0])
 print("===== Gradient Descent Iteration Test =====\n")
 
 mySlp.test(test_images[:100], test_labels[:100])
-mySlp.train(train_images, train_labels, iterations=3000)
+mySlp.train(train_images, train_labels, iterations=1000)
 mySlp.test(test_images[:100], test_labels[:100])

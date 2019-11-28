@@ -1,6 +1,6 @@
 MNIST database
 	Well known annotated database of handwritten characters in 28x28 form
-	Contains a training set and a test set with certain
+	Contains a training set and a test set
 	<http://yann.lecun.com/exdb/mnist/>
 
 datapythonista/mnist
