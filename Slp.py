@@ -80,13 +80,14 @@ class SLP:
     def test_n_report(self, testing_set, testing_labels):
         predictions = []
         softmaxes = []
-        print("TESTING")
+        print("\n====================== TESTING =========================")
         for test_sample in testing_set:
             temp_sums = self.get_sums(test_sample)
             softmaxes.append(self.get_softmaxes(temp_sums))
             predictions.append(self.output_classes[softmaxes[-1].index(max(softmaxes[-1]))])
         cm = self.get_confusion_matrix(predictions, testing_labels)
         self.show_performance(cm)
+        print("============ END OF TESTING ON " + str(len(testing_labels)) + " SAMPLES =============\n")
 
     def get_confusion_matrix(self, predictions, test_labels):
         #generates the confusion matrix for the given labels and predictions
