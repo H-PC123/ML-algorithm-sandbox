@@ -1,7 +1,9 @@
 import mnist
 import numpy
 import random
+
 import Slp
+import Naive_Bayes
 
 fold_amount = 10
 
@@ -35,6 +37,7 @@ def initialize_learners():
     learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
 
     #naive bayes learner
+    learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
 
     return learners
 

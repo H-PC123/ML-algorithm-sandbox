@@ -11,7 +11,7 @@ class Multiclass_Naive_Bayes:
        #this is actually a horrible heuristic but im just using it as proof of concept so i guess its fine
        self._posterior_probabilities = []
 
-    def train(self, train_images, train_labels):
+    def train(self, train_images, train_labels, iterations = 6000):
         #calculates and saves all the prior and posterior probabilities
         prior_counts = [0] * len(self.output_classes)
         for i in train_labels:
@@ -43,6 +43,8 @@ class Multiclass_Naive_Bayes:
     def test(self, test_images, test_labels):
         #tests the input test images in serial
         #passes the labels along to the evaulation methods to evaulate performance
+        print("\n====================== TESTING =========================")
+
         predictions = []
 
         for i in range(len(test_labels)):
@@ -53,8 +55,10 @@ class Multiclass_Naive_Bayes:
                 numerator_list.append(self.posterior_probabilities[class_index][event_index] * self.prior_probabilities[class_index])
             maximum_index = self.get_max_bayes(numerator_list)
             predictions.append(self.output_classes[maximum_index])
-        self.evaluate_performance(test_labels, predictions)
-        return None
+        evaluation_metrics = self.evaluate_performance(test_labels, predictions)
+
+        print("============ END OF TESTING ON " + str(len(test_labels)) + " SAMPLES =============\n")
+        return evaluation_metrics
 
 
     def get_gs_sum(self, image, row_index, col_index):
@@ -102,15 +106,53 @@ class Multiclass_Naive_Bayes:
         return max_index
 
     def evaluate_performance(self, test_labels, predictions):
-        print("accuracy:")
-        tp_count = 0
-        for i in range(len(test_labels)):
-            tp_count += 1 if test_labels[i] == predictions[i] else 0
-        print(tp_count/len(predictions))
+        cm = self.get_confusion_matrix(predictions, test_labels)
 
-        return None
+        tp_list = [cm[x][x] for x in range(len(cm))]
+        fn_list = [sum(cm[x]) - tp_list[x] for x in range(len(cm))]
+        fp_list = [sum([cm[x][y] for x in range(len(cm))]) - tp_list[y] for y in range(len(cm))]
+        tn_value = sum([sum(cm[x]) for x in range(len(cm))]) - sum(tp_list)
 
+        accuracy = sum(tp_list)/(sum(fn_list + tp_list))
+        (per_class_precisions, per_class_recalls) = self.get_class_metrics(tp_list, fn_list, fp_list)
+        (micro_avg_precision, micro_avg_recall) = self.get_micro_avg(tp_list, fn_list, fp_list)
+        (macro_avg_precision, macro_avg_recall) = self.get_macro_avg(per_class_precisions, per_class_recalls)
 
-#class Naive_Bayes:
- #   def __init__(self, input_features):
+        print("Accuracy : " + str(accuracy))
+        print("Micro average precision : " + str(micro_avg_precision))
+        print("Micro average recall : " + str(micro_avg_recall))
+        print("Per class precisions : " + str(per_class_precisions))
+        print("Per class recalls : " + str(per_class_recalls))
+        print("Macro average precision : " + str(macro_avg_precision))
+        print("Macro average recall : " + str(macro_avg_recall))
+
+        return (accuracy, micro_avg_precision, micro_avg_recall, macro_avg_precision, macro_avg_recall, per_class_precisions, per_class_recalls)
+
+    def get_confusion_matrix(self, predictions, test_labels):
+        #generates the confusion matrix for the given labels and predictions
+        #useful later for display performance metrics
+        #output is a 2D array, where the element at index i,j, is the number of times the model predicted i while the true value was j
+
+        cm = [[0]*10 for i in range(len(self.output_classes))]
+        
+        for i in range(len(predictions)):
+            cm[predictions[i]][test_labels[i]] += 1
+        return cm
+
+    def get_micro_avg(self, tp_list, fn_list, fp_list):
+        #returns a tuple (x, y) where x is the micro average precision and y is the micro average recall
+        precision = sum(tp_list)/(sum(tp_list + fp_list))
+        recall = sum(tp_list)/(sum(tp_list + fn_list))
+        return (precision, recall)
+
+    def get_macro_avg(self, precisions, recalls):
+        #returns the macro averages in a tuple (precision, recall)
+        return (sum(precisions)/len(precisions), sum(recalls)/len(recalls))
+
+    def get_class_metrics(self, tp_list, fn_list, fp_list):
+        #calculates the class precisions and recalls
+        #returns a tuple (x, y) where x is the list of per class precisions and y is the list of per class recalls
+        precisions = [tp_list[x]/(tp_list[x]+fp_list[x]) if fp_list[x] > 0 else 0 for x in range(len(tp_list))]
+        recalls = [tp_list[x]/(tp_list[x]+fn_list[x]) if fn_list[x] > 0 else 0 for x in range(len(tp_list))]
+        return (precisions, recalls)
 
