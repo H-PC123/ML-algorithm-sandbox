@@ -23,8 +23,10 @@ print(train_labels[0])
 
 print("============ Single Layer Perceptron Testing ===========\n")
 #initial test to confirm correctness
-mySlp.test(test_images[:100], test_labels[:100])
+pre_eval_metrics = mySlp.test(test_images[:100], test_labels[:100])
+print(str(pre_eval_metrics))
 #training, uses a portion of data, enough to get decent results and still not take longer than 10 minutes (around 2 to 5)
-mySlp.train(train_images, train_labels, iterations=3000)
+mySlp.train(train_images, train_labels, iterations=100)
 #test over larger set of test images, enough to get a decent confusion matrix for actual metric calculation
-mySlp.test(test_images[:5000], test_labels[:5000])
+eval_metrics = mySlp.test(test_images[:5000], test_labels[:5000])
+print(eval_metrics)

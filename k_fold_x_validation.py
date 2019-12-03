@@ -85,7 +85,7 @@ def k_fold_x_validation(folds):
             #the test functions should give us the evaulation metrics of the test in the earlier specified format (as a tuple)
             print("     Testing the trained model on the test images:")
             learner_evaluation = learner.test(fold_test_images, fold_test_labels)
-            learner_evaluations.append(learner_evaluations)
+            learner_evaluations.append(learner_evaluation)
         performance_evaluations.append(learner_evaluations)
     
     return performance_evaluations

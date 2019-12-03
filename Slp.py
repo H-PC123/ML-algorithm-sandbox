@@ -4,18 +4,35 @@ import random
 
 class SLP:
     def __init__(self, output_classes, input_features):
+        #output_classes is a list of possible classes for data
+        #input_features is a list of features for data
+        #this initalizer creates a perceptron for each output class, each one with input_features for it's features list
+
         self.output_classes = output_classes
         self.output_layer = []
         for i in output_classes:
             self.output_layer.append(Perceptron(input_features))
 
     def train(self, training_set, training_labels, learning_rate=0.5, iterations=3500):
+        #takes the min of the training set size or iterations to run the training (each data point is an iteration
+        #performs gradient descent with the cross entropy as the loss function
         self.gradient_descent(iterations, learning_rate, training_set, training_labels)
 
     def test(self, testing_set, testing_labels):
+        #takes a test set and its corresponding labels as input and prints the accuracy ,precision and recall evaulation metrics. Also returns these values in a list
+        #returned list values are:
+        #   0) accuracy
+        #   1) micro precision
+        #   2) micro recall
+        #   3) macro precision
+        #   4) macro recall
+        #   5) per class precision
+        #   6) per class recall
         return self.test_n_report(testing_set, testing_labels)
 
     def gradient_descent(self, iteration_count, learning_rate, training_data, training_labels):
+        # a basic implementation of gradient descent over each value of the training data or the iteration_count if that is lower instead
+        #each sample updates the weight by a factor of the learning rate, the cross entropy derivative and the original weight
         for i in range(min(iteration_count, len(training_data))):
             if i%(min(iteration_count, len(training_data))/10) == 0:
                 print("{:.3f}".format(i/min(iteration_count, len(training_data)) * 100) + "%")
@@ -30,17 +47,20 @@ class SLP:
         return None
 
     def predict(self, data_sample):
+        #uses the model's current weights to evaluate the given data sample
         sums = self.get_sums(data_sample)
         softmaxes = self.get_softmaxes(sums)
         return self.output_classes[softmaxes.index(max(softmaxes))]
 
     def get_sums(self, data_sample):
+        #produces the sums from the perceptrons and returns them in a list for further processing
         sums = []
         for i in self.output_layer:
             sums.append(i.lin_sum(data_sample))
         return sums
 
     def get_softmaxes(self, sums):
+        #takes the weighted sums on a previous data sample and produes the softmax values of each, returns a list of the softmax values
         softmaxes = []
         
         denominator = 0
@@ -53,6 +73,8 @@ class SLP:
         return softmaxes
 
     def calculate_error(self, target_class, softmaxes):
+        #calculates the cross entropy value of the softmaxes and the actual labels
+        #could technically be any satisfactory loss function but I've chosen cross entropy since its what we saw in class
         return self.get_cross_entropy(target_class, softmaxes)
 
     def get_cross_entropy(self, target_class, softmaxes):
@@ -60,6 +82,8 @@ class SLP:
         return x_entropy
 
     def back_propogate_error(self, softmaxes, target, data_sample):
+        #returns the factor the weights should be adjusted by 
+        #should be processed a touch further by a following function
         del_error = []
         #make your life easier, swap these indicies
         for j in range(len(self.output_classes)):
@@ -73,12 +97,15 @@ class SLP:
         return del_error
 
     def update_weights(self, learning_rate, del_errors):
+        #updates the weights of the perceptrons from the learning rate and the del_errors
         for i in range(len(self.output_layer)):
             weight_delta = [learning_rate * x for x in del_errors[i]]
             self.output_layer[i].incoming_weights = [self.output_layer[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))]
         return None
 
     def test_n_report(self, testing_set, testing_labels):
+        #a loop for testing an input test set w its labels
+        #prints and returns the resulting evaluation metrics
         predictions = []
         softmaxes = []
         print("\n====================== TESTING =========================")
