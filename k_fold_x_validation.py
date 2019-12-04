@@ -1,6 +1,7 @@
 import mnist
 import numpy
 import random
+import json
 
 import Slp
 import Naive_Bayes
@@ -35,13 +36,13 @@ def initialize_learners():
     learners = []
 
     #multinomial perceptron learner
-    learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
+   # learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
 
     #naive bayes learner
     learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
 
     #multi layer perceptron learner
-    learners.append(Mlp.MLP([x for x in range(0,10)], [28], [x for x in range(97, 97 + 784)]))
+    #learners.append(Mlp.MLP([x for x in range(0,10)], [28], [x for x in range(97, 97 + 784)]))
 
     return learners
 
@@ -73,18 +74,16 @@ def k_fold_x_validation(folds):
         #5  per class precisions (list)
         #6  per class recalls (list)
     #We additionally append the list of learner classes to the end of the list so we have a reference for the indices
-    performance_evaluations = []
+    performance_evaluations = {}
 
     fold_length = int(len(train_labels)/folds)
     for k in range(folds):
         print("===== Using " + str(k + 1) + "th out of " + str(folds) + " folds as test set for " + str(folds) +  "-fold cross-validation =====")
         #initializing as we need new learners for each evaluation
         learners = initialize_learners()
-        learner_evaluations= []
-        learner_types = []
+        learner_evaluations= {}
 
         for learner in learners:
-            learner_types.append(str(type(learner)))
             print("    Training " + str(learner) + " learner:")
             (fold_test_images, fold_test_labels) = (split_images[k], split_labels[k])
             for i in range(folds):
@@ -95,15 +94,35 @@ def k_fold_x_validation(folds):
             #the test functions should give us the evaulation metrics of the test in the earlier specified format (as a tuple)
             print("     Testing the trained model on the test images:")
             learner_evaluation = learner.test(fold_test_images, fold_test_labels)
-            learner_evaluations.append(learner_evaluation)
-        performance_evaluations.append(learner_evaluations)
+            learner_evaluations[str(type(learner))] = (learner_evaluation)
+        performance_evaluations[k] = (learner_evaluations)
     
-    performance_evaluations.append(learner_types)
     return performance_evaluations
 
 evaluations = k_fold_x_validation(10)
 
-#write the results to file (really do not want to lose this), the cross validation takes forever lol
-open('x_validation_out.txt', 'w').write(str(evaluations))
 
-#also append a list of the learners so that we know which learner corresponds to which index in the result subarrays
+#also calculate the averages, this is more or less what we actually want
+
+evaluation_sums = {}
+evaluation_averages = {}
+for learner in evaluations[0]:
+    evaluation_sums[learner] = [0] * 5
+    evaluation_averages[learner] = [0] * 5
+
+for fold in evaluations:
+    for learner in evaluations[fold]:
+        for metric_index in range(5):
+            evaluation_sums[learner][metric_index] += evaluations[fold][learner][metric_index]
+			
+for learner_sums in evaluation_sums:
+    evaluation_averages[learner_sums] = [x/10 for x in evaluation_sums[learner_sums]]
+
+#write the results to file (really do not want to lose this), the cross validation takes forever lol
+#we take the average over the folds using the first 5 metrics (not the per class evaluations)
+        #0  accuracy
+        #1  micro averaged precision
+        #2  micro averaged recall
+        #3  macro averaged precision
+        #4  macro averaged recall
+json.dump(evaluation_averages, open('x_validation_out.txt', 'w'))
