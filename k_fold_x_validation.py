@@ -68,6 +68,7 @@ def k_fold_x_validation(folds):
         #4  macro averaged recall
         #5  per class precisions (list)
         #6  per class recalls (list)
+    #We additionally append the list of learner classes to the end of the list so we have a reference for the indices
     performance_evaluations = []
 
     fold_length = int(len(train_labels)/folds)
@@ -76,8 +77,10 @@ def k_fold_x_validation(folds):
         #initializing as we need new learners for each evaluation
         learners = initialize_learners()
         learner_evaluations= []
+        learner_types = []
 
         for learner in learners:
+            learner_types.append(str(type(learner)))
             print("    Training " + str(learner) + " learner:")
             (fold_test_images, fold_test_labels) = (split_images[k], split_labels[k])
             for i in range(folds):
@@ -91,6 +94,7 @@ def k_fold_x_validation(folds):
             learner_evaluations.append(learner_evaluation)
         performance_evaluations.append(learner_evaluations)
     
+    performance_evaluations.append(learner_types)
     return performance_evaluations
 
 evaluations = k_fold_x_validation(10)
