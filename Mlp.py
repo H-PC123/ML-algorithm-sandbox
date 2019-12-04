@@ -48,7 +48,7 @@ class MLP:
         # a basic implementation of gradient descent over each value of the training data or the iteration_count if that is lower instead
         #each sample updates the weight by a factor of the learning rate, the cross entropy derivative and the original weight
         for i in range(min(iteration_count, len(training_data))):
-            if i%(min(iteration_count, len(training_data))/100) == 0:
+            if i%(min(iteration_count, len(training_data))/10) == 0:
                 print("{:.3f}".format(i/min(iteration_count, len(training_data)) * 100) + "%")
 
             prediction_sums, prediction_softmaxes = self.predict(training_data[i], mode='train')
