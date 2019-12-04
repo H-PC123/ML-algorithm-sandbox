@@ -56,8 +56,8 @@ class MLP:
             x_entropy = self.calculate_error(training_labels[i], prediction_softmaxes)
 
             #we start with back propagation for the output layer
-            #need to multiply each element of del_errors[i] by prediction_sums[-2][i] after
-            delta_outputs = self.back_propagate_output_layer(prediction_softmaxes, training_labels[i], prediction_sums[-2])
+            #need to multiply each element of del_errors[i] by sigmoid of prediction_sums[-2][i] after
+            delta_outputs = self.back_propagate_output_layer(prediction_softmaxes, training_labels[i])
             #self.update_weights(self.output_layer,learning_rate, delta_outputs, prediction_sums[-2])
 
             #next we do the the hidden layers
@@ -65,7 +65,7 @@ class MLP:
             for j in range(len(self.hidden_layers)):
                 current_layer_sigmoids = [self.get_sigmoid(x) for x in prediction_sums[-2 - j]]
                 forward_layer = self.hidden_layers[-1 - j] if j > 0 else self.output_layer
-                current_layer_deltas = self.back_propagate_hidden(current_layer_sigmoids, layer_dels[-1], forward_layer, training_labels[i])
+                current_layer_deltas = self.back_propagate_hidden(current_layer_sigmoids, layer_dels[-1 - j], forward_layer)
                 layer_dels.insert(0, current_layer_deltas)
 
             #Update the weights
@@ -120,7 +120,7 @@ class MLP:
         x_entropy = - softmaxes[self.output_classes.index(target_class)]
         return x_entropy
 
-    def back_propagate_output_layer(self, output_data, target, input_data):
+    def back_propagate_output_layer(self, output_data, target):
         #returns the factor the weights should be adjusted by (before a multiplication by the input)
         #should be processed a touch further by a following function
         del_error = []
@@ -132,21 +132,22 @@ class MLP:
                 del_error.append((output_data[j])*output_data[j]*(1 - output_data[j]))
         return del_error
 
-    def back_propagate_hidden(self, outputs, forward_layer_deltas, forward_layer, target):
+    def back_propagate_hidden(self, outputs, forward_layer_deltas, forward_layer):
         #returns the deltas for this layer of perceptrons, will need to be nultiplied by the feature value and the learning rate before subtracting from the current weight
         deltas = []
-        target_list = [0] * len(outputs)
-        target_list[target] = 1
         for i in range(len(outputs)):
-            deltas.append(sum([(forward_layer_deltas[x] - target_list[x]) * forward_layer[x].incoming_weights[i] for x in range(len(forward_layer))]) * outputs[i] * (1 - outputs[i]))
+            deltas.append(sum([(forward_layer_deltas[x]) * forward_layer[x].incoming_weights[i] for x in range(len(forward_layer))]) * outputs[i] * (1 - outputs[i]))
 
         return deltas
 
-    def update_weights(self, perceptron_list, learning_rate, del_errors, input_values):
+    def update_weights(self, perceptron_list, learning_rate, del_errors, input_sums):
         #updates the weights of the perceptrons from the learning rate and the del_errors
+        input_values = [self.get_sigmoid(x) for x in input_sums]
         
         for i in range(len(perceptron_list)):
+            print('hello')
             weight_delta = [learning_rate * del_errors[i] * input_values[x]/512 for x in range(len(input_values))]
+            print(perceptron_list[i].incoming_weights == [perceptron_list[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))])
             perceptron_list[i].incoming_weights = [perceptron_list[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))]
         return None
 
