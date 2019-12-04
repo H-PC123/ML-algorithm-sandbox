@@ -35,10 +35,10 @@ def initialize_learners():
     learners = []
 
     #multinomial perceptron learner
- #   learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
+    learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
 
     #naive bayes learner
-#    learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
+    learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
 
     #multi layer perceptron learner
     learners.append(Mlp.MLP([x for x in range(0,10)], [28], [x for x in range(97, 97 + 784)]))
