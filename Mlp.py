@@ -145,9 +145,7 @@ class MLP:
         input_values = [self.get_sigmoid(x) for x in input_sums]
         
         for i in range(len(perceptron_list)):
-            print('hello')
             weight_delta = [learning_rate * del_errors[i] * input_values[x]/512 for x in range(len(input_values))]
-            print(perceptron_list[i].incoming_weights == [perceptron_list[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))])
             perceptron_list[i].incoming_weights = [perceptron_list[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))]
         return None
 
