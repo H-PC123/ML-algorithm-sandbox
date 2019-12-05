@@ -24,7 +24,7 @@ class MLP:
         for i in output_classes:
             self.output_layer.append(Perceptron([x for x in range(previous_layer_size)]))
 
-    def train(self, training_set, training_labels, learning_rate=0.5, iterations=3500):
+    def train(self, training_set, training_labels, learning_rate=0.0001, iterations=3500):
         #takes the min of the training set size or iterations to run the training (each data point is an iteration
         #performs gradient descent with the cross entropy as the loss function
         #will need to do stochastic sampling cuz this take far too long i legit dont have time to let this thing train
@@ -78,8 +78,6 @@ class MLP:
                     #not really sigmoids but I shouldve named it input_vector lol
                     previous_layer_sigmoids = prediction_sums[-3 - j]
                 self.update_weights(self.hidden_layers[-1 - j], learning_rate, layer_dels[-2 - j], previous_layer_sigmoids)
-        print(self.output_layer[6].incoming_weights)
-        print(self.output_layer[7].incoming_weights)
         return None
 
     def predict(self, data_sample, mode='test'):

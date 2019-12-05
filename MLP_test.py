@@ -16,7 +16,7 @@ print(train_labels.shape)
 print(test_images.shape)
 print(test_labels.shape)
 
-mySlp = Mlp.MLP([x for x in range(0, 10)], [28], [x for x in range(97, 97+ 784)])
+mySlp = Mlp.MLP([x for x in range(0, 10)], [100], [x for x in range(97, 97+ 784)])
 
 print(mySlp.predict(train_images[0]))
 print(train_labels[0])
