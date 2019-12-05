@@ -18,8 +18,8 @@ print(test_labels.shape)
 
 mySlp = Mlp.MLP([x for x in range(0, 10)], [28], [x for x in range(97, 97+ 784)])
 
-#print(mySlp.predict(train_images[0]))
-#print(train_labels[0])
+print(mySlp.predict(train_images[0]))
+print(train_labels[0])
 
 print("============ Single Layer Perceptron Testing ===========\n")
 #initial test to confirm correctness

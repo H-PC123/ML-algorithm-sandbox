@@ -69,17 +69,23 @@ class MLP:
                 layer_dels.insert(0, current_layer_deltas)
 
             #Update the weights
-            self.update_weights(self.output_layer, learning_rate, layer_dels[-1], prediction_sums[-2])
+            previous_layer_sigmoids = [self.get_sigmoid(x) for x in prediction_sums[-2]]
+            self.update_weights(self.output_layer, learning_rate, layer_dels[-1], previous_layer_sigmoids)
             for j in range(len(self.hidden_layers)):
-                self.update_weights(self.hidden_layers[-1 - j], learning_rate, layer_dels[-2 - j], prediction_sums[-3 - j])
-            
-            
+                if j != len(self.hidden_layers) - 1:
+                    previous_layer_sigmoids = [self.get_sigmoid(x) for x in prediction_sums[-3 - j]]
+                else:
+                    #not really sigmoids but I shouldve named it input_vector lol
+                    previous_layer_sigmoids = prediction_sums[-3 - j]
+                self.update_weights(self.hidden_layers[-1 - j], learning_rate, layer_dels[-2 - j], previous_layer_sigmoids)
+        print(self.output_layer[6].incoming_weights)
+        print(self.output_layer[7].incoming_weights)
         return None
 
     def predict(self, data_sample, mode='test'):
         #uses the model's current weights to evaluate the given data sample
         
-        previous_layer_out = data_sample
+        previous_layer_out = [x/512 for x in data_sample]
         layer_sums = [previous_layer_out]
         for hidden_layer in self.hidden_layers:
             current_layer_sums = [x.lin_sum(previous_layer_out) for x in hidden_layer]
@@ -140,12 +146,11 @@ class MLP:
 
         return deltas
 
-    def update_weights(self, perceptron_list, learning_rate, del_errors, input_sums):
+    def update_weights(self, perceptron_list, learning_rate, del_errors, input_values):
         #updates the weights of the perceptrons from the learning rate and the del_errors
-        input_values = [self.get_sigmoid(x) for x in input_sums]
         
         for i in range(len(perceptron_list)):
-            weight_delta = [learning_rate * del_errors[i] * input_values[x]/512 for x in range(len(input_values))]
+            weight_delta = [learning_rate * del_errors[i] * input_values[x] for x in range(len(input_values))]
             perceptron_list[i].incoming_weights = [perceptron_list[i].incoming_weights[x] - weight_delta[x] for x in range(len(weight_delta))]
         return None
 
@@ -168,14 +173,14 @@ class MLP:
         #useful later for display performance metrics
         #output is a 2D array, where the element at index i,j, is the number of times the model predicted i while the true value was j
 
-        cm = [[0]*10 for i in range(len(self.output_classes))]
+        cm = [[0]*len(self.output_classes) for i in range(len(self.output_classes))]
         
         for i in range(len(predictions)):
             cm[predictions[i]][test_labels[i]] += 1
         return cm
 
     def show_performance(self, cm):
-        #calculates and dosplays performance metrix from the confusion matrix
+        #calculates and displays performance metrix from the confusion matrix
 
         tp_list = [cm[x][x] for x in range(len(cm))]
         fn_list = [sum(cm[x]) - tp_list[x] for x in range(len(cm))]
@@ -221,17 +226,10 @@ class MLP:
 class Perceptron:
     def __init__(self, input_features):
         self.input_features = input_features
-        #weight is ~1/512 since the some of the grayscale values can actually exceed the limit of math.exp's representation, we need this later
         self.incoming_weights = [round(random.random(), 4) for x in range(len(input_features))]
 
-    def lin_sum(self, data_sample, norm_coeff=1/512):
+    def lin_sum(self, data_sample, norm_coeff=1):
         total = 0
         for i in range(len(data_sample)):
             total += data_sample[i] * norm_coeff * self.incoming_weights[i]
         return total
-
-    def get_output(self, feature_values, norm_coeff=1/512):#defunct
-        weighted_sum = self.lin_sum(feature_values, norm_coeff)
-        #calculate the sigmoid value
-        sigmoid_out = (1/(1 + math.exp(-weighted_sum)))
-        return sigmoid_out
