@@ -39,19 +39,19 @@ def initialize_learners():
     learners = []
 
     #multinomial perceptron learner
-    #learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
+    learners.append(Slp.SLP([x for x in range(0, 10)], [x for x in range(97, 97 + 784)]))
 
     #naive bayes learner
-    #learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
+    learners.append(Naive_Bayes.Multiclass_Naive_Bayes([x for x in range(10)]))
 
     #multi layer perceptron learner !!DOESNT WORK ATM
     #learners.append(Mlp.MLP([x for x in range(0,10)], [28], [x for x in range(97, 97 + 784)]))
     
     #scikit learn's SVM inplementation
-    #learners.append(Sklearn_svm.Sklearn_SVM())
+    learners.append(Sklearn_svm.Sklearn_SVM())
     
     #scikit learn's Gaussian Naive Bayes implementation
-    #learners.append(Sklearn_gnb.Sklearn_Naive_Bayes())
+    learners.append(Sklearn_gnb.Sklearn_Naive_Bayes())
     
     #sklearn's MLP implementation, default parameters
     learners.append(Sklearn_mlp.Sklearn_MLP())
